@@ -21,10 +21,21 @@ firebase.initializeApp({
 router.post('/:method/:deviceId', function(req, res, next) {
 	res.setHeader('Content-Type', 'application/json');
 	
-	console.log('----Params', req.params);
+	let params = {
+		method: 'wake',	// wake|url
+		deviceId: null,
+		...req.params,
+	};
 	
-	const method = req.params.method;	// wake|refresh
-	const deviceId = req.params.deviceId;
+	let actionData = req.body;	// Send body as additional action data
+	
+	
+	console.log('----params', params);
+	console.log('----actionData', actionData);
+	
+	
+	const deviceId = params.deviceId;
+	
 	
 	// Fetch pushId from the DB
 	const device = objectStore.get(`${KEY_DEVICE_ID}/${deviceId}`);
@@ -34,10 +45,16 @@ router.post('/:method/:deviceId', function(req, res, next) {
 	}
 	const pushId = device.pushId;
 	
+	
+	console.log('pushId', pushId);
+	
+	
 	const payload = {
 		data: {
-			title: 'A',
-			body: method,
+			// title: 'Hello',
+			// body: 'hello',
+			'_action': params.method,
+			'_actionData': JSON.stringify(actionData),
 			'content-available': '1',
 			'force-start': '1',
 		}
@@ -45,7 +62,6 @@ router.post('/:method/:deviceId', function(req, res, next) {
 	
 	const options = {
 		priority: 'high',
-		timeToLive: 60 * 60 * 24, // 1 day
 	};
 	
 	firebase.messaging().sendToDevice(pushId, payload, options);

@@ -21,6 +21,9 @@ var randomString = function(length) {
 
 var generateUniqueDeviceCode = function() {
 	
+	//return 'TEST';
+	
+	
 	let attempts = 0;
 	while (attempts < 5) {
 		
